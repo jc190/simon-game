@@ -8,6 +8,14 @@
   user-select: none;
 }
 
+body, html {
+  height: 100%;
+}
+
+#simon-game {
+  height: 550px;
+}
+
 h1 {
   cursor: default;
 }
