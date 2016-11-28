@@ -1,0 +1,8 @@
+{
+  "name": "simon-game",
+  "version": "0.0.1",
+  "description": "Remake of the classic game Simon",
+  "main": "index.js",
+  "author": "James Calhoun",
+  "license": "MIT"
+}

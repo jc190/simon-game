@@ -1,0 +1,239 @@
+* {
+  box-sizing: border-box;
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -khtml-user-select: none;    /* Konqueror */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;
+  user-select: none;
+}
+
+h1 {
+  cursor: default;
+}
+
+body {
+  background: url('https://i0.wp.com/wpliving.net/wp-content/uploads/2016/01/light-1.jpg');
+  position: relative;
+}
+
+.flex-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-spacer {
+  flex: 1;
+}
+
+.simon-background {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0%);
+  background-color: #333;
+  height: 550px;
+  width: 550px;
+  border-radius: 50%;
+  box-shadow: 0px 0px 15px rgba(0,0,0,.4);
+}
+
+.simon-container {
+  height: 500px;
+  width: 500px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+}
+
+.simon-circle:active, .active-simon {
+  box-shadow: 0 0 100px rgba(256,256,256,.7) inset;
+}
+
+.simon-circle {
+  height: 250px;
+  width: 250px;
+  cursor: pointer;
+}
+
+.simon-top-right {
+  background-color: #F03526;
+  border-top-right-radius: 100%;
+  float: left;
+  border-bottom: 5px solid #333;
+  border-left: 5px solid #333;
+}
+
+.simon-top-left {
+  background-color: #66BD54;
+  border-top-left-radius: 100%;
+  float: left;
+  border-bottom: 5px solid #333;
+  border-right: 5px solid #333;
+}
+
+.simon-bottom-right {
+  background-color: #3496D3;
+  border-bottom-right-radius: 100%;
+  float: left;
+  border-top: 5px solid #333;
+  border-left: 5px solid #333;
+}
+
+.simon-bottom-left {
+  background-color: #FAEE38;
+  border-bottom-left-radius: 100%;
+  float: left;
+  clear: left;
+  border-top: 5px solid #333;
+  border-right: 5px solid #333;
+}
+
+.simon-center-background {
+  display: block;
+  height: 50%;
+  width: 50%;
+  background: #333;
+  z-index: 100;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  //border: 10px solid #222;
+}
+
+.simon-center-background::after {
+  content: '';
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  background: url('../images/texture-tile-black.png');
+  opacity: .4;
+  z-index: 200;
+  border-radius: 50%;
+  box-shadow: 0 0 20px #333 inset,
+              0 0 20px #333 inset,
+              0 0 20px #333 inset;
+}
+
+.simon-center-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999;
+}
+
+.simon-logo {
+  margin: 0;
+  color: rgba(256,256,256,.9);
+  font-family: 'Exo 2', sans-serif;
+  font-size: 52px;
+  text-shadow: -2px -2px 0 rgba(0,0,0,.4);
+}
+
+.score-keeper {
+/*   height: 50px;
+  width: 75px; */
+  display: block;
+  float: left;
+  background-color: #777;
+  padding: 5px;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0,0,0,.4) inset;
+  border: 1px solid rgba(256,256,256,.3);
+  font-family: 'VT323';
+  margin-top: 15px;
+}
+
+label {
+  margin-top: .75em;
+  margin-right: 1.75em;
+  float: right;
+}
+
+input {
+  position: absolute;
+  left: -9999px;
+}
+
+.score-keeper > h1 {
+  display: inline;
+  color: rgba(0,0,0,.8);
+}
+
+.switch {
+  position: relative;
+  display: block;
+  width: 1.5em;
+  height: 1.5em;
+  cursor: pointer;
+  float: right;
+  clear: right;
+  margin-top: 15px;
+  margin-right: 2em;
+  background: #555;
+  border-radius: 50%;
+}
+
+.switch-top{
+  //content: '';
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1.5em;
+  height: 1.5em;
+  background-color: #333;
+  border-radius: 50%;
+  border: 1px solid rgba(256,256,256,.4);
+  transition: margin-top ease .3s;
+}
+
+.active-switch::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 175%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: red;
+  opacity: .7;
+  transition: all ease .3s;
+}
+
+.switch:active > .switch-top {
+  top: 50%;
+}
+
+#strict-mode span, #on-off span {
+  display: block;
+  color: white;
+  position: absolute;
+  top: 0%;
+  left: -190%;
+  font-size: .6em;
+  font-weight: 900;
+  font-family: 'Exo 2';
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.score-off {
+  opacity: .2;
+}
+
+.score-on {
+  opacity: .7;
+}
+
+.disable {
+  pointer-events: none;
+}
