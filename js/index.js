@@ -31,7 +31,6 @@ var Simon = (function() {
   function turnCount() {
     if (state.turnCounter < 10) {
       $('#turn-count').text('0' + state.turnCounter);
-      state.playbackSpeed = 800;
     } else {
       $('#turn-count').text(state.turnCounter);
       state.playbackSpeed = 500;
@@ -47,28 +46,28 @@ var Simon = (function() {
     if (!currentMoves) {
       currentMoves = state.moves;
     }
+    // Define timed playback function
+    function timedPlayBack(i) {
+      state.timeID = setTimeout(function() {
+        if (state.simonOn === false) {
+          return false;
+        }
+        playSound(currentMoves[i]);
+        $('#' + currentMoves[i]).addClass('active-simon');
+        if (i === currentMoves.length - 1) {
+          setTimeout(function() {
+            state.isPlayerTurn = true;
+            $('.simon-circle').removeClass('disable');
+          }, 500);
+        }
+        setTimeout(function() {
+          $('#' + currentMoves[i]).removeClass('active-simon');
+        }, 500);
+      }, i * state.playbackSpeed);
+    }
     for (var i = 0; i < currentMoves.length; i++) {
       timedPlayBack(i);
     }
-  }
-  // Define timed playback function
-  function timedPlayBack(i) {
-    state.timeID = setTimeout(function() {
-      if (state.simonOn === false) {
-        return false;
-      }
-      playSound(currentMoves[i]);
-      $('#' + currentMoves[i]).addClass('active-simon');
-      if (i === currentMoves.length - 1) {
-        setTimeout(function() {
-          state.isPlayerTurn = true;
-          $('.simon-circle').removeClass('disable');
-        }, 500);
-      }
-      setTimeout(function() {
-        $('#' + currentMoves[i]).removeClass('active-simon');
-      }, 500);
-    }, i * state.playbackSpeed);
   }
   // Cpu choose move algo
   function chooseMove() {
@@ -150,8 +149,6 @@ var Simon = (function() {
           state.strictMode = false;
         }
       });
-      // Start cpu turn
-      chooseMove();
     }
   };
 })();
