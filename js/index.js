@@ -8,7 +8,7 @@ var Simon = (function() {
     turnCount: 0,
     moves: [],
     timeID: null,
-    playbackSpeed: 1000
+    playbackSpeed: 800
   };
   // Define game button options
   var buttons = {
