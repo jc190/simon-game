@@ -1,153 +1,159 @@
-var Simon = {
-  simonOn: false,
-  timeID: undefined,
-  strictMode: false,
-  isPlayerTurn: false,
-  playerCount: 0,
-  turnCounter: 0,
-  options: ['blue', 'red', 'green', 'yellow'],
-  moves: [],
-  wrong: new Audio('./audio/wrong.wav'),
-
-  blue: {
-    sound: new Audio('https://s3.amazonaws.com/freecodecamp/simonSound1.mp3'),
-  },
-  red: {
-    sound: new Audio('https://s3.amazonaws.com/freecodecamp/simonSound3.mp3'),
-  },
-  green: {
-    sound: new Audio('https://s3.amazonaws.com/freecodecamp/simonSound4.mp3'),
-  },
-  yellow: {
-    sound: new Audio('https://s3.amazonaws.com/freecodecamp/simonSound2.mp3'),
-  },
-
-  playSound: function(color) {
-    Simon[color].sound.currentTime = 0;
-    Simon[color].sound.play();
-  },
-
-  playBack: function(currentMoves) {
+var Simon = (function() {
+  // Define default state of game
+  var state = {
+    simonOn: false,
+    strictMode: false,
+    isPlayerTurn: false,
+    playerCount: 0,
+    turnCount: 0,
+    moves: [],
+    timeID: null,
+    playbackSpeed: 1000
+  };
+  // Define game button options
+  var buttons = {
+    options: ['blue', 'red', 'green', 'yellow']
+  };
+  // Define sound sources
+  var sounds = {
+    wrong: new Audio('./audio/wrong.wav'),
+    blue: new Audio('https://s3.amazonaws.com/freecodecamp/simonSound1.mp3'),
+    red: new Audio('https://s3.amazonaws.com/freecodecamp/simonSound3.mp3'),
+    green: new Audio('https://s3.amazonaws.com/freecodecamp/simonSound4.mp3'),
+    yellow: new Audio('https://s3.amazonaws.com/freecodecamp/simonSound2.mp3')
+  };
+  // Play sound clips
+  function playSound(type) {
+    sounds[type].currentTime = 0;
+    sounds[type].play();
+  }
+  // Increment and check turn counter & increase speed after level 10
+  function turnCount() {
+    if (state.turnCounter < 10) {
+      $('#turn-count').text('0' + state.turnCounter);
+      state.playbackSpeed = 800;
+    } else {
+      $('#turn-count').text(state.turnCounter);
+      state.playbackSpeed = 500;
+    }
+  }
+  // Random number generator
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+  // Playback moves taken so far
+  function playBack(currentMoves) {
     $('.simon-circle').addClass('disable');
     if (!currentMoves) {
-      currentMoves = Simon.moves;
-    }
-
-    function timedPlayBack(i) {
-      Simon.timeID = setTimeout(function() {
-        if (Simon.simonOn === false) {
-          return false;
-        }
-        Simon.playSound(currentMoves[i]);
-        $('#' + currentMoves[i]).addClass('active-simon');
-        if (i === currentMoves.length - 1) {
-          setTimeout(function() {
-            Simon.isPlayerTurn = true;
-            $('.simon-circle').removeClass('disable');
-          }, 500);
-        }
-        setTimeout(function() {
-          $('#' + currentMoves[i]).removeClass('active-simon');
-        }, 500);
-      }, i * 800);
+      currentMoves = state.moves;
     }
     for (var i = 0; i < currentMoves.length; i++) {
-
       timedPlayBack(i);
     }
-  },
-
-  chooseMove: function() {
-    if (Simon.turnCounter === 20) {
+  }
+  // Define timed playback function
+  function timedPlayBack(i) {
+    state.timeID = setTimeout(function() {
+      if (state.simonOn === false) {
+        return false;
+      }
+      playSound(currentMoves[i]);
+      $('#' + currentMoves[i]).addClass('active-simon');
+      if (i === currentMoves.length - 1) {
+        setTimeout(function() {
+          state.isPlayerTurn = true;
+          $('.simon-circle').removeClass('disable');
+        }, 500);
+      }
+      setTimeout(function() {
+        $('#' + currentMoves[i]).removeClass('active-simon');
+      }, 500);
+    }, i * state.playbackSpeed);
+  }
+  // Cpu choose move algo
+  function chooseMove() {
+    if (state.turnCounter === 20) {
       alert('You win!');
-      Simon.reset();
-      return;
+      return reset();
     }
-    var temp = getRandomInt(0, Simon.options.length - 1);
-    Simon.moves.push(Simon.options[temp]);
-    Simon.playBack(Simon.moves);
-    Simon.turnCounter++;
+    var choice = getRandomInt(0, buttons.options.length - 1);
+    state.moves.push(buttons.options[choice]);
+    playBack(state.moves);
+    state.turnCounter++;
     turnCount();
-    Simon.playerCount = 0;
-  },
-
-  reset: function() {
-    Simon.moves = [];
-    Simon.turnCounter = 0;
-    Simon.chooseMove();
+    state.playerCount = 0;
   }
-};
-
-function turnCount() {
-  if (Simon.turnCounter < 10) {
-    $('#turn-count').text('0' + Simon.turnCounter);
-  } else {
-    $('#turn-count').text(Simon.turnCounter);
+  // Resets game and restarts with cpu turn
+  function reset() {
+    state.moves = [];
+    state.turnCounter = 0;
+    chooseMove();
   }
-}
-
-$('.simon-circle').on('click', function() {
-  if (Simon.isPlayerTurn === true) {
-    if (this.id === Simon.moves[Simon.playerCount]) {
-      Simon.playerCount++;
-      Simon.playSound(this.id);
-      if (Simon.playerCount === Simon.moves.length) {
-        Simon.isPlayerTurn = false;
-        setTimeout(Simon.chooseMove, 1000);
-      }
-    } else {
-      if (Simon.strictMode === true) {
-        $('#turn-count').text('!!');
-        Simon.wrong.play();
-        Simon.playerCount = 0;
-        Simon.isPlayerTurn = false;
-        setTimeout(Simon.reset, 1000);
-      } else {
-        $('#turn-count').text('!!');
-        setTimeout(turnCount, 1000);
-        Simon.wrong.play();
-        Simon.playerCount = 0;
-        Simon.isPlayerTurn = false;
-        setTimeout(Simon.playBack, 1000);
-      }
+  // Return object with public functions
+  return {
+    init: function() {
+      // Event listener for color buttons
+      $('.simon-circle').on('click', function() {
+        if (state.isPlayerTurn === true) {
+          if (this.id === state.moves[state.playerCount]) {
+            state.playerCount++;
+            playSound(this.id);
+            if (state.playerCount === state.moves.length) {
+              state.isPlayerTurn = false;
+              setTimeout(chooseMove, 1000);
+            }
+          } else {
+            $('#turn-count').text('!!');
+            playSound('wrong');
+            state.playerCount = 0;
+            state.isPlayerTurn = false;
+            if (state.strictMode === true) {
+              setTimeout(reset, 1000);
+            } else {
+              setTimeout(turnCount, 1000);
+              setTimeout(playBack, 1000);
+            }
+          }
+        }
+      });
+      // Event listener for on / off button
+      $('#on-off').on('click', function() {
+        if (state.simonOn === false) {
+          $('#turn-count').addClass('score-on');
+          $('#strict-mode').removeClass('disable');
+          $('.simon-circle').removeClass('disable');
+          $('#on-off').addClass('active-switch');
+          state.simonOn = true;
+          reset();
+        } else {
+          $('#turn-count').removeClass('score-on');
+          $('.simon-circle').addClass('disable');
+          $('#on-off').removeClass('active-switch');
+          if (state.strictMode === true) {
+            $('#strict-mode').click();
+          }
+          $('#strict-mode').addClass('disable');
+          state.simonOn = false;
+          state.isPlayerTurn = false;
+          $('#turn-count').text('--');
+          clearTimeout(state.timeID);
+          state.timeID = null;
+        }
+      });
+      // Event listener for strict mode button
+      $('#strict-mode').on('click', function() {
+        if (state.strictMode === false) {
+          $('#strict-mode').addClass('active-switch');
+          state.strictMode = true;
+        } else {
+          $('#strict-mode').removeClass('active-switch');
+          state.strictMode = false;
+        }
+      });
+      // Start cpu turn
+      chooseMove();
     }
-  }
-});
-
-function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-$('#on-off').on('click', function() {
-  if (Simon.simonOn === false) {
-    $('#turn-count').addClass('score-on');
-    $('#strict-mode').removeClass('disable');
-    $('.simon-circle').removeClass('disable');
-    $('#on-off').addClass('active-switch');
-    Simon.simonOn = true;
-    Simon.reset();
-  } else {
-    $('#turn-count').removeClass('score-on');
-    $('.simon-circle').addClass('disable');
-    $('#on-off').removeClass('active-switch');
-    if (Simon.strictMode === true) {
-      $('#strict-mode').click();
-    }
-    $('#strict-mode').addClass('disable');
-    Simon.simonOn = false;
-    Simon.isPlayerTurn = false;
-    $('#turn-count').text('--');
-    clearTimeout(Simon.timeID);
-    Simon.timeID = undefined;
-  }
-});
-
-$('#strict-mode').on('click', function() {
-  if (Simon.strictMode === false) {
-    $('#strict-mode').addClass('active-switch');
-    Simon.strictMode = true;
-  } else {
-    $('#strict-mode').removeClass('active-switch');
-    Simon.strictMode = false;
-  }
-});
+  };
+})();
+// Start game
+Simon.init();
