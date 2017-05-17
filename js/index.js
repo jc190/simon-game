@@ -8,7 +8,7 @@ var Simon = (function() {
     turnCount: 0,
     moves: [],
     timeID: null,
-    playbackSpeed: 800
+    playbackSpeed: 700
   };
   // Define game button options
   var buttons = {
@@ -27,18 +27,17 @@ var Simon = (function() {
     sounds[type].currentTime = 0;
     sounds[type].play();
   }
-  // Increment and check turn counter & increase speed after level 10
+  // Display turn count & prepend count with 0 if < 10
   function turnCount() {
-    if (state.turnCounter < 10) {
-      $('#turn-count').text('0' + state.turnCounter);
-    } else {
-      $('#turn-count').text(state.turnCounter);
-      state.playbackSpeed = 500;
-    }
+    if (state.turnCount >= 10) return $('#turn-count').text(state.turnCount);
+    $('#turn-count').text('0' + state.turnCount);
   }
   // Random number generator
   function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+  function endPlayback () {
+    clearInterval(state.timeID);
   }
   // Playback moves taken so far
   function playBack(currentMoves) {
@@ -46,46 +45,40 @@ var Simon = (function() {
     if (!currentMoves) {
       currentMoves = state.moves;
     }
-    // Define timed playback function
-    function timedPlayBack(i) {
-      state.timeID = setTimeout(function() {
-        if (state.simonOn === false) {
-          return false;
-        }
-        playSound(currentMoves[i]);
-        $('#' + currentMoves[i]).addClass('active-simon');
-        if (i === currentMoves.length - 1) {
-          setTimeout(function() {
-            state.isPlayerTurn = true;
-            $('.simon-circle').removeClass('disable');
-          }, 500);
-        }
+    let count = 0;
+    state.timeID = setInterval(function () {
+      if (count > 0) $('#' + currentMoves[count - 1]).removeClass('active-simon');
+      if (count > currentMoves.length - 1 || state.simonOn === false) return endPlayback();
+      playSound(currentMoves[count]);
+      $('#' + currentMoves[count]).addClass('active-simon');
+      if (count === currentMoves.length - 1) {
         setTimeout(function() {
-          $('#' + currentMoves[i]).removeClass('active-simon');
-        }, 500);
-      }, i * state.playbackSpeed);
-    }
-    for (var i = 0; i < currentMoves.length; i++) {
-      timedPlayBack(i);
-    }
+          state.isPlayerTurn = true;
+          $('.simon-circle').removeClass('disable');
+        }, state.playbackSpeed);
+      }
+      count++;
+    }, state.playbackSpeed);
   }
   // Cpu choose move algo
   function chooseMove() {
-    if (state.turnCounter === 20) {
+    if (state.turnCount === 20) {
       alert('You win!');
       return reset();
     }
     var choice = getRandomInt(0, buttons.options.length - 1);
     state.moves.push(buttons.options[choice]);
     playBack(state.moves);
-    state.turnCounter++;
+    state.turnCount++;
+    if (state.turnCount >= 10) state.playbackSpeed -= 40;
     turnCount();
     state.playerCount = 0;
   }
   // Resets game and restarts with cpu turn
   function reset() {
     state.moves = [];
-    state.turnCounter = 0;
+    state.turnCount = 0;
+    state.playbackSpeed = 700;
     chooseMove();
   }
   // Return object with public functions
@@ -135,7 +128,10 @@ var Simon = (function() {
           state.simonOn = false;
           state.isPlayerTurn = false;
           $('#turn-count').text('--');
-          clearTimeout(state.timeID);
+          buttons.options.forEach(function (color) {
+            $('#' + color).removeClass('active-simon');
+          });
+          clearInterval(state.timeID);
           state.timeID = null;
         }
       });
